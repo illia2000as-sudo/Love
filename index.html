@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>З 8 Березня, Мамо!</title>
+    <style>
+        :root {
+            --pink: #ff4d6d;
+            --dark-red: #c9184a;
+            --soft-bg: #fff0f3;
+        }
+
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: var(--soft-bg);
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Контейнер для накопичених побажань */
+        #wishes-cloud {
+            position: absolute;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+        }
+
+        .bubble-wish {
+            position: absolute;
+            background: white;
+            padding: 8px 15px;
+            border-radius: 50px;
+            color: var(--dark-red);
+            font-weight: bold;
+            font-size: 0.85rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            white-space: nowrap;
+            animation: pop 0.4s ease-out forwards;
+            z-index: 5;
+        }
+
+        @keyframes pop {
+            0% { transform: scale(0); opacity: 0; }
+            100% { transform: scale(1); opacity: 0.8; }
+        }
+
+        /* Центральне серце */
+        #heart-container {
+            position: relative;
+            z-index: 50;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .heart {
+            width: 100px;
+            height: 100px;
+            background-color: var(--pink);
+            position: relative;
+            transform: rotate(-45deg);
+            box-shadow: 0 10px 20px rgba(255, 77, 109, 0.3);
+        }
+
+        .heart::before, .heart::after {
+            content: "";
+            width: 100px;
+            height: 100px;
+            background-color: var(--pink);
+            border-radius: 50%;
+            position: absolute;
+        }
+        .heart::before { top: -50px; left: 0; }
+        .heart::after { left: 50px; top: 0; }
+
+        /* Фінальний текст */
+        #final-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.95);
+            z-index: 100;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .final-line {
+            opacity: 0;
+            transform: translateY(20px);
+            color: var(--dark-red);
+            font-size: 1.8rem;
+            margin: 10px 0;
+            font-weight: bold;
+            transition: all 0.8s ease-out;
+        }
+
+        .final-line.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .particle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: var(--pink);
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="wishes-cloud"></div>
+
+    <div id="heart-container" onclick="handleInteraction()">
+        <div class="heart"></div>
+    </div>
+
+    <div id="final-screen">
+        <div class="final-line">Дорога матусю!</div>
+        <div class="final-line">Вітаю тебе зі святом весни!</div>
+        <div class="final-line">Нехай кожен твій день буде сповнений тепла, усмішок та натхнення.</div>
+        <div class="final-line">Бажаю міцного здоров’я, безмежного щастя та гармонії в душі.</div>
+        <div class="final-line">Дякую за твою любов і доброту! ❤️</div>
+    </div>
+
+    <script>
+        let clicks = 0;
+        const maxClicks = 10;
+        const miniWishes = ["Ніжність 🌸", "Тепло ☀️", "Радість 😊", "Квіти 💐", "Усмішки ✨", "Здоров'я 💪", "Любов ❤️", "Затишок 🏠", "Щастя 🌈", "Мрії 🎈"];
+
+        function handleInteraction() {
+            if (clicks >= maxClicks) return;
+
+            clicks++;
+            createBubble();
+
+            const heartContainer = document.getElementById('heart-container');
+            heartContainer.style.transform = `scale(${1 + clicks * 0.15})`;
+
+            if (clicks === maxClicks) {
+                explode();
+            }
+        }
+
+        function createBubble() {
+            const container = document.getElementById('wishes-cloud');
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble-wish';
+            
+            // Вираховуємо позицію ТІЛЬКИ по краях екрану, щоб не закривати серце
+            const angle = Math.random() * Math.PI * 2;
+            const distance = 250 + Math.random() * 100; // Виштовхуємо далі від центру
+            const x = (window.innerWidth / 2) + Math.cos(angle) * distance - 50;
+            const y = (window.innerHeight / 2) + Math.sin(angle) * distance;
+
+            bubble.style.left = x + 'px';
+            bubble.style.top = y + 'px';
+            bubble.innerText = miniWishes[clicks - 1] || "Вітаю!";
+            
+            container.appendChild(bubble);
+        }
+
+        function explode() {
+            const heart = document.getElementById('heart-container');
+            
+            // Ефект розльоту частинок
+            for (let i = 0; i < 40; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                p.style.left = '50%';
+                p.style.top = '50%';
+                document.body.appendChild(p);
+
+                const tx = (Math.random() - 0.5) * 1200;
+                const ty = (Math.random() - 0.5) * 1200;
+
+                p.animate([
+                    { transform: 'translate(-50%, -50%) scale(1)', opacity: 1 },
+                    { transform: `translate(${tx}px, ${ty}px) scale(0)`, opacity: 0 }
+                ], { duration: 1000, easing: 'ease-out' }).onfinish = () => p.remove();
+            }
+
+            heart.style.display = 'none';
+            document.getElementById('wishes-cloud').style.display = 'none';
+
+            // Почергова поява тексту
+            const screen = document.getElementById('final-screen');
+            screen.style.display = 'flex';
+            
+            const lines = document.querySelectorAll('.final-line');
+            lines.forEach((line, index) => {
+                setTimeout(() => {
+                    line.classList.add('show');
+                }, index * 1000); // Кожне речення з'являється через 1 секунду
+            });
+        }
+    </script>
+</body>
+</html>
